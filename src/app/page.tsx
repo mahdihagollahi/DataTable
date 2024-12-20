@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 
 import Navbar from "@/commponent/Navbar/Navbar";
 import Footer from "@/commponent/Footer/Footer";
@@ -20,15 +20,11 @@ function App() {
     document.querySelector("html").setAttribute("data-theme", localTheme);
   }, [theme]);
   return (
-    <div
- 
-       
-   
-    >
+    <Fragment>
       <Navbar handleToggle={handleToggle} />
       <AddFile />
       <Footer />
-    </div>
+    </Fragment>
   );
 }
 
