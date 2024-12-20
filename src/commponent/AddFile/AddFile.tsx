@@ -1,19 +1,25 @@
 import React, { useState } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
+import TextField from "@mui/material/TextField";
 
-const AddFile = () => {
-  const [data, setData] = useState([]);
-  const [fileType, setFileType] = useState("");
+type RowData = { [key: string]: string };
 
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
+const AddFile: React.FC = () => {
+  const [data, setData] = useState<RowData[]>([]);
+  const [fileType, setFileType] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  const handleFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
 
     reader.onload = (e) => {
-      const content = e.target.result;
+      const content = e.target?.result as string;
 
       if (file.type === "application/json") {
         setFileType("JSON");
@@ -22,72 +28,27 @@ const AddFile = () => {
         setFileType("CSV");
         handleCSVFile(content);
       } else {
-        <div role="alert" className="alert alert-error">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 shrink-0 stroke-current"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span>فقط فایل‌های JSON و CSV پشتیبانی می‌شوند!</span>
-        </div>;
+        alert("فقط فایل‌های JSON و CSV پشتیبانی می‌شوند!");
       }
     };
 
     reader.readAsText(file);
   };
 
-  const handleJSONFile = (content) => {
+  const handleJSONFile = (content: string): void => {
     try {
       const parsedData = JSON.parse(content);
       if (Array.isArray(parsedData)) {
         setData(parsedData);
       } else {
-        <div role="alert" className="alert alert-error">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 shrink-0 stroke-current"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span>فایل JSON باید آرایه‌ای از اشیاء باشد!</span>
-        </div>;
+        alert("فایل JSON باید آرایه‌ای از اشیاء باشد!");
       }
     } catch (error) {
-      <div role="alert" className="alert alert-error">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6 shrink-0 stroke-current"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <span>فایل CSV نامعتبر است!</span>
-      </div>;
+      alert("فایل JSON نامعتبر است!");
     }
   };
 
-  const handleCSVFile = (content) => {
+  const handleCSVFile = (content: string): void => {
     const rows = content.split("\n").map((row) => row.split(","));
     const [header, ...body] = rows;
 
@@ -97,16 +58,23 @@ const AddFile = () => {
           row.reduce((acc, value, index) => {
             acc[header[index]] = value;
             return acc;
-          }, {})
+          }, {} as RowData)
         )
       );
     } else {
       alert("فایل CSV نامعتبر است!");
     }
   };
-  const columns =
+
+  const filteredData = data.filter((row) =>
+    Object.values(row).some((value) =>
+      String(value).toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
+
+  const columns: GridColDef[] =
     data.length > 0
-      ? Object.keys(data[0]).map((key, index) => ({
+      ? Object.keys(data[0]).map((key) => ({
           field: key,
           headerName: key,
           width: 150,
@@ -116,11 +84,36 @@ const AddFile = () => {
   return (
     <div className="">
       {data.length > 0 ? (
-        <div className="flex items-center justify-center  h-screen">
-          
+        <div className="flex relative gap-6 flex-col px-20 items-center justify-center h-screen">
+       
+
+          <label className="input   w-[100%] input-bordered flex items-center gap-2">
+            <input
+              type="text"
+              className="grow "
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search"
+            />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              className="h-4 w-4 opacity-70"
+            >
+              <path
+                fillRule="evenodd"
+                d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </label>
           <Paper sx={{ height: 400, width: "100%" }}>
             <DataGrid
-              rows={data.map((item, index) => ({ id: index + 1, ...item }))}
+              rows={filteredData.map((item, index) => ({
+                id: index + 1,
+                ...item,
+              }))}
               columns={columns}
               pageSizeOptions={[5, 10]}
               checkboxSelection
@@ -129,7 +122,7 @@ const AddFile = () => {
           </Paper>
         </div>
       ) : (
-        <div className="flex items-center justify-center h-screen">
+        <div className="flex px-20 items-center justify-center h-screen">
           <div
             className="w-full px-4 py-8 mx-auto shadow rounded-lg lg:w-1/3 bg-white"
             style={{ backgroundColor: "var(--background)" }}
