@@ -3,7 +3,7 @@ import React from "react";
 
 function Footer() {
   return (
-    <div className="absolute  left-0 right-0 bottom-0">
+    <div className="absolute   left-0 right-0 bottom-0">
       <footer
         className="footer items-center p-4 bg-neutral text-neutral-content"
         style={{ backgroundColor: "var(--background)", color:"var(--text-color)"}}

@@ -1,11 +1,11 @@
 "use client";
-import React from "react";
+import React, { Fragment } from "react";
 import Img from "next/image";
 import imgg from "@/assent/Image/gg.jpg";
 
 function Navbar({ handleToggle }) {
   return (
-    <div>
+    <Fragment>
       <div
         className="navbar px-2 bg-base-100 fixed "
         style={{
@@ -76,7 +76,7 @@ function Navbar({ handleToggle }) {
           </div>
         </div>
       </div>
-    </div>
+    </Fragment>
   );
 }
 
