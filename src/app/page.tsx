@@ -1,9 +1,38 @@
-import React from 'react'
+"use client"
+import React,{useState,useEffect} from 'react'
 
-const page = () => {
+import Todo from '../Componnent/Todo'
+import Navbar from '../Componnent/Navbar'
+import Footer from '../Componnent/Footer';
+
+function App() {
+
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+
+   
+  const handleToggle = (e) => {
+    if(e.target.checked) {
+    setTheme ("dark");
+    }
+    else
+    setTheme("light")
+      }
+    
+    
+    
+    
+      useEffect ( ()=> {
+        localStorage. setItem("theme", theme);
+        const localTheme = localStorage.getItem ("theme" );
+        document.querySelector("html").setAttribute("data-theme", localTheme);
+      }, [theme]);
   return (
-    <div>page</div>
+    <div>
+      <Navbar handleToggle={handleToggle}/>
+ <Todo/>
+      <Footer/>
+    </div>
   )
 }
 
-export default page
+export default App
